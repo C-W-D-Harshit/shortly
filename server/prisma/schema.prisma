@@ -1,0 +1,43 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User Model (for authentication)
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  urls      URLMapping[]
+}
+
+// URL Mapping Model (stores the long and short URLs)
+model URLMapping {
+  id        String   @id @default(cuid()) // Use cuid for unique URL ID
+  shortId   String   @unique
+  longUrl   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    Int?
+  user      User?    @relation(fields: [userId], references: [id])
+  clicks    Analytics[]
+}
+
+// Advanced Analytics Model (tracks detailed URL clicks)
+model Analytics {
+  id          Int      @id @default(autoincrement())
+  urlId       String   // Foreign key to URLMapping
+  clickedAt   DateTime @default(now())
+  ipAddress   String   // IP address of the user who clicked the link
+  userAgent   String   // User-Agent string (browser info)
+  referrer    String?  // Referrer URL (optional)
+  deviceType  String?  // Device type: 'mobile', 'desktop', 'tablet' (optional)
+  location    String?  // Geolocation info (optional)
+  url         URLMapping @relation(fields: [urlId], references: [id])
+}
