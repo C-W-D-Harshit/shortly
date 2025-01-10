@@ -1,0 +1,20 @@
+{
+  "name": "shortly",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "prebuild": "mkdir -p build",
+    "build:client": "cd client && pnpm i && pnpm build",
+    "build:server": "cd server && pnpm i && pnpm build",
+    "start": "npm run prebuild && npm run build:client && npm run build:server && cd server && pnpm start",
+    "dev": "concurrently \"cd client && pnpm dev\" \"cd server && pnpm dev\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "dotenv": "^16.4.7"
+  }
+}
