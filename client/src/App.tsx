@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "./components/ui/button";
 import { cn } from "./lib/utils";
 import { toast } from "sonner";
+import { Toaster } from "./components/ui/sonner";
 
 export default function App() {
   // State for URL input and shortened result
@@ -173,6 +174,7 @@ export default function App() {
           © {new Date().getFullYear()} - Shortly
         </div>
       </div>
+      <Toaster />
     </main>
   );
 }
