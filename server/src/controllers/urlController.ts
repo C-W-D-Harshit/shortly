@@ -3,6 +3,8 @@ import { prisma } from "@/utils/prisma";
 import { generateShortId, isValidUrl } from "@/utils/urlUtils";
 import redis from "@/utils/redis";
 import { Request, Response } from "express";
+import { Ratelimit } from "@upstash/ratelimit";
+import { Redis } from "@upstash/redis";
 
 // Constants for cache configuration
 const CACHE_TTL_SECONDS = 3600; // 1 hour cache duration
@@ -33,8 +35,31 @@ function normalizeUrl(url: string): string {
   return url;
 }
 
+// Create a new ratelimiter, that allows 5 requests per week
+const ratelimit = new Ratelimit({
+  redis: Redis.fromEnv(),
+  limiter: Ratelimit.slidingWindow(2, "1 s"),
+  analytics: true,
+  /**
+   * Optional prefix for the keys used in redis. This is useful if you want to share a redis
+   * instance with other applications and want to avoid key collisions. The default prefix is
+   * "@upstash/ratelimit"
+   */
+  prefix: "@upstash/ratelimit",
+});
+
 export const createURL = catchAsyncErrors(
   async (req: Request, res: Response) => {
+    // Get IP address from request
+    const ip =
+      req.headers["x-forwarded-for"] || req.headers["x-real-ip"] || "127.0.0.1";
+
+    const { success } = await ratelimit.limit(ip + "1");
+
+    if (!success) {
+      throw new Error("Too many requests");
+    }
+
     let { longUrl } = req.body as CreateURLRequest;
 
     if (!longUrl) {
