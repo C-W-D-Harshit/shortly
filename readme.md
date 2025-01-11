@@ -1,6 +1,6 @@
 # Short.ly
 
-A URL shortening service built with Next.js, TailwindCSS, and Shadcn/UI.
+A URL shortening service built with React.js,Express.js, Typescript, Prisma, TailwindCSS, and Shadcn/UI.
 
 ## env
 
